@@ -59,6 +59,48 @@ class Course(db.Model):
         }
 
 
+@app.route("/api/students", methods=["POST"])
+def create_student():
+    try:
+        data = request.get_json()
+
+       
+        if not data.get("full_name"):
+            return jsonify({"error": "full_name is required."}), 400
+        if not data.get("email"):
+            return jsonify({"error": "email is required."}), 400
+        if not data.get("age"):
+            return jsonify({"error": "age is required."}), 400
+        if not data.get("joined_date"):
+            return jsonify({"error": "joined_date is required."}), 400
+
+        if int(data["age"]) <= 0:
+            return jsonify({"error": "age must be a positive integer."}), 400
+
+        
+
+       
+        student = Student(
+            full_name   = data["full_name"],
+            email       = data["email"],
+            age         = int(data["age"]),
+            cgpa        = data.get("cgpa", 0.0),
+            is_active   = data.get("is_active", True),
+            joined_date = date.fromisoformat(data["joined_date"]),
+        )
+        db.session.add(student)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Student created successfully.",
+            "data": student.to_dict()
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
     try:
         with app.app_context():
