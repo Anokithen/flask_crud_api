@@ -162,6 +162,23 @@ def update_student(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    
+@app.route("/api/students/<int:id>", methods=["DELETE"])
+def delete_student(id):
+    try:
+        student = Student.query.get(id)
+        if not student:
+            return jsonify({"error": f"Student with id {id} not found."}), 404
+
+        db.session.delete(student)
+        db.session.commit()
+        return jsonify({
+            "message": f"Student '{student.full_name}' deleted successfully."
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
