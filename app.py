@@ -77,7 +77,9 @@ def create_student():
         if int(data["age"]) <= 0:
             return jsonify({"error": "age must be a positive integer."}), 400
 
-        
+        existing = Student.query.filter_by(email=data["email"]).first()
+        if existing:
+            return jsonify({"error": "Email address already exists."}), 400
 
        
         student = Student(
