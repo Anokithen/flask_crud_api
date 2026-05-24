@@ -116,7 +116,15 @@ def get_students():
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 
-
+@app.route("/api/students/<int:id>", methods=["GET"])
+def get_student(id):
+    try:
+        student = Student.query.get(id)
+        if not student:
+            return jsonify({"error": f"Student with id {id} not found."}), 404
+        return jsonify({"message": "Success", "data": student.to_dict()}), 200
+    except Exception as e:
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 if __name__ == "__main__":
     try:
