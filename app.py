@@ -125,6 +125,44 @@ def get_student(id):
         return jsonify({"message": "Success", "data": student.to_dict()}), 200
     except Exception as e:
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    
+@app.route("/api/students/<int:id>", methods=["PUT"])
+def update_student(id):
+    try:
+        student = Student.query.get(id)
+        if not student:
+            return jsonify({"error": f"Student with id {id} not found."}), 404
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided in request body."}), 400
+
+        if "age" in data and int(data["age"]) <= 0:
+            return jsonify({"error": "age must be a positive integer."}), 400
+
+        if "email" in data:
+            existing = Student.query.filter_by(email=data["email"]).first()
+            if existing and existing.id != id:
+                return jsonify({"error": "Email address already exists."}), 400
+
+        if "full_name"   in data: student.full_name   = data["full_name"]
+        if "email"       in data: student.email       = data["email"]
+        if "age"         in data: student.age         = int(data["age"])
+        if "cgpa"        in data: student.cgpa        = data["cgpa"]
+        if "is_active"   in data: student.is_active   = data["is_active"]
+        if "joined_date" in data:
+            student.joined_date = date.fromisoformat(data["joined_date"])
+
+        db.session.commit()
+        return jsonify({
+            "message": "Student updated successfully.",
+            "data": student.to_dict()
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     try:
