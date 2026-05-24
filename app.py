@@ -62,7 +62,7 @@ class Course(db.Model):
 @app.route("/api/students", methods=["POST"])
 def create_student():
     try:
-        data = request.get_json()
+        data = request.get_json(force=True) 
 
        
         if not data.get("full_name"):
@@ -185,7 +185,7 @@ def delete_student(id):
 @app.route("/api/courses", methods=["POST"])
 def create_course():
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
         if not data.get("course_title"):
             return jsonify({"error": "course_title is required."}), 400
         if not data.get("course_fee"):
@@ -285,13 +285,5 @@ def delete_course(id):
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    try:
-        with app.app_context():
-            db.session.execute(text("SELECT 1"))
-            print("SUCCESS: Database connected!")
-            db.create_all()
-            print("SUCCESS: Tables created!")
-    except Exception as e:
-        print(f"ERROR: {e}")
     app.run(debug=True)
 
