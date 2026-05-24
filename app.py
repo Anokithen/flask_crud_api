@@ -101,6 +101,21 @@ def create_student():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    
+
+@app.route("/api/students", methods=["GET"])
+def get_students():
+    try:
+        students = Student.query.all()
+        return jsonify({
+            "message": "Success",
+            "count":   len(students),
+            "data":    [s.to_dict() for s in students]
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+
 
 
 if __name__ == "__main__":
