@@ -1,6 +1,6 @@
 from datetime import date
 from flask import request, jsonify
-from app.extensions import db
+from app import db
 from app.models.student_model import Student
 
 
@@ -16,7 +16,6 @@ def create_student():
             return jsonify({"error": "age is required."}), 400
         if not data.get("joined_date"):
             return jsonify({"error": "joined_date is required."}), 400
-
         if int(data["age"]) <= 0:
             return jsonify({"error": "age must be a positive integer."}), 400
 
@@ -35,10 +34,7 @@ def create_student():
         db.session.add(student)
         db.session.commit()
 
-        return jsonify({
-            "message": "Student created successfully.",
-            "data": student.to_dict()
-        }), 201
+        return jsonify({"message": "Student created successfully.", "data": student.to_dict()}), 201
 
     except Exception as e:
         db.session.rollback()
@@ -48,11 +44,7 @@ def create_student():
 def get_students():
     try:
         students = Student.query.all()
-        return jsonify({
-            "message": "Success",
-            "count":   len(students),
-            "data":    [s.to_dict() for s in students]
-        }), 200
+        return jsonify({"message": "Success", "count": len(students), "data": [s.to_dict() for s in students]}), 200
     except Exception as e:
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
@@ -90,14 +82,10 @@ def update_student(id):
         if "age"         in data: student.age         = int(data["age"])
         if "cgpa"        in data: student.cgpa        = data["cgpa"]
         if "is_active"   in data: student.is_active   = data["is_active"]
-        if "joined_date" in data:
-            student.joined_date = date.fromisoformat(data["joined_date"])
+        if "joined_date" in data: student.joined_date = date.fromisoformat(data["joined_date"])
 
         db.session.commit()
-        return jsonify({
-            "message": "Student updated successfully.",
-            "data": student.to_dict()
-        }), 200
+        return jsonify({"message": "Student updated successfully.", "data": student.to_dict()}), 200
 
     except Exception as e:
         db.session.rollback()
@@ -112,9 +100,7 @@ def delete_student(id):
 
         db.session.delete(student)
         db.session.commit()
-        return jsonify({
-            "message": f"Student '{student.full_name}' deleted successfully."
-        }), 200
+        return jsonify({"message": f"Student '{student.full_name}' deleted successfully."}), 200
 
     except Exception as e:
         db.session.rollback()
